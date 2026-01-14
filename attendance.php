@@ -22,7 +22,19 @@ if ($role == 'class_teacher') {
     $teacher_class = "All Classes";
 }
 
+// Handle form submission (only class teacher can mark attendance)
+if ($role == 'class_teacher' && $_SERVER['REQUEST_METHOD'] == 'POST') {
+    $today = date('Y-m-d');
+    foreach ($_POST['status'] as $student_id => $status) {
+        $student_id = intval($student_id);
+        $status = mysqli_real_escape_string($conn, $status);
 
+        $check = mysqli_query($conn, "SELECT * FROM attendance WHERE student_id=$student_id AND attendance_date='$today'");
+        if (mysqli_num_rows($check) == 0) {
+            mysqli_query($conn, "INSERT INTO attendance (student_id, teacher_id, attendance_date, status) VALUES ($student_id, $teacher_id, '$today', '$status')");
+        }
+    }
+    echo "<p>Attendance for today saved successfully.</p>";
 }
 ?>
 
